@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1220" />
+    <title>Bingo Connect - Demo PWA</title>
+    <link rel="icon" href="data:," />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css?v=menu-premio-qr-1" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <button id="menuButton" class="menu-button" aria-label="Menu"><span></span><span></span><span></span></button>
+        <div class="brand">
+          <span>BINGO</span><strong>CONNECT</strong>
+        </div>
+        <div class="version-badge">
+          OPERADOR LIMPIO: reglas, balota automatica y pausa
+        </div>
+        <nav class="role-tabs" aria-label="Vistas del sistema">
+          <button class="role-tab active" data-view="operator">Operador</button>
+          <button class="role-tab" data-view="player">Jugador</button>
+          <button class="role-tab" data-view="public">Pantalla</button>
+        </nav>
+      </header>
+
+      <aside id="sideMenu" class="side-menu" aria-label="Menu principal">
+        <div class="side-menu-head">
+          <strong>Bingo Connect</strong>
+          <button id="closeMenu" class="ghost-button">Cerrar</button>
+        </div>
+        <button class="menu-nav active" data-view="operator">Panel operador</button>
+        <button class="menu-nav" data-view="player">Jugadores</button>
+        <button class="menu-nav" data-view="public">Pantalla publica</button>
+        <button id="clearPlayersMenu" class="danger-button">Limpiar jugadores</button>
+      </aside>
+      <div id="menuBackdrop" class="menu-backdrop"></div>
+
+      <section class="view active" id="operatorView">
+        <div class="dashboard-grid">
+          <section class="panel room-panel">
+            <div>
+              <p class="eyebrow">Sala activa</p>
+              <h1 id="roomTitle">Bingo Central 4821</h1>
+              <p class="muted">Ronda 58 - Bingo B-I-N-G-O presencial conectado</p>
+            </div>
+            <div class="qr-card">
+              <img id="qrCode" class="qr-code" alt="QR para entrar como jugador" />
+              <div>
+                <span>Codigo corto</span>
+                <strong id="roomCode">BINGO-4821</strong>
+                <small id="qrLinkText"></small>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel stats-panel">
+            <article><span>Jugadores</span><strong id="statPlayers">0</strong></article>
+            <article><span>Cartones</span><strong id="statAvailable">0</strong></article>
+            <article><span>En espera</span><strong id="statReserved">0</strong></article>
+            <article><span>Activos</span><strong id="statPaid">0</strong></article>
+          </section>
+
+          <section class="panel rules-panel">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Regla de la ronda</p>
+                <h2 id="selectedRuleTitle">Regla seleccionada: sin seleccionar</h2>
+              </div>
+              <button id="openRules" class="primary-button">Seleccionar reglas</button>
+            </div>
+            <div class="active-rule-display">
+              <div id="activeRulePreview" class="rule-mini"></div>
+              <p id="activeRuleText" class="muted">Selecciona una regla antes de iniciar la partida.</p>
+            </div>
+          </section>
+
+          <section class="panel number-console">
+            <div class="console-head">
+              <div>
+                <p class="eyebrow">Balotera B-I-N-G-O</p>
+                <h2>Sacar balota</h2>
+              </div>
+              <span id="roundState" class="status-chip pending">Preparando</span>
+            </div>
+            <div class="ball-actions">
+              <button id="drawBall" class="primary-button draw-button">Sacar balota</button>
+              <button id="autoNumber" class="ghost-button">Demo automatica</button>
+              <button id="pauseRoundMain" class="ghost-button">Pausar</button>
+            </div>
+            <div class="current-row">
+              <div class="lottery-drum">
+                <div class="drum-glass">
+                  <div class="drum-shine"></div>
+                  <div class="spinner"></div>
+                  <div id="floatingBalls" class="floating-balls"></div>
+                  <div id="currentBall" class="current-ball">--</div>
+                </div>
+                <div class="drum-mouth"></div>
+              </div>
+              <div class="history-panel">
+                <span>Balotas cantadas</span>
+                <div id="historyTrack" class="history-track"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel control-panel">
+            <div class="config-grid">
+              <label>Premio de la ronda <input id="prizeInput" type="number" min="0" step="1000" value="240000" /></label>
+              <label>Max. por jugador <strong id="maxTicketsLabel">5</strong></label>
+              <label>Patron <strong id="patternLabel">Sin seleccionar</strong></label>
+              <label>Premio <strong id="prizeLabel">$ 240.000</strong></label>
+            </div>
+            <div class="control-actions">
+              <button id="startRound" class="primary-button">Iniciar</button>
+              <button id="pauseRound" class="ghost-button">Pausar</button>
+              <button id="finishRound" class="danger-button">Finalizar</button>
+            </div>
+            <label class="toggle-row"><input id="motionToggle" type="checkbox" checked /> Animaciones y sonido visual</label>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="playerView">
+        <div class="player-stage">
+          <section class="panel player-register-panel">
+            <p class="eyebrow">Registro de jugadores</p>
+            <h1>Generar cartones</h1>
+            <div class="register-grid">
+              <label>Nombre del jugador<input id="playerName" placeholder="Nombre completo" /></label>
+              <label>Identificacion o registro<input id="playerDocument" placeholder="Documento o codigo" /></label>
+              <label>Cantidad de cartones<input id="ticketQuantity" type="number" min="1" max="5" value="1" /></label>
+              <button id="joinRoom" class="primary-button">Generar cartones</button>
+            </div>
+            <p id="playerStatus" class="state-text">Selecciona o registra un jugador para revisar sus cartones.</p>
+          </section>
+
+          <section class="panel player-control-panel">
+            <div class="control-board-head">
+              <div>
+                <p class="eyebrow">Control de cartones</p>
+                <h2>Jugadores registrados</h2>
+              </div>
+              <div class="player-panel-actions">
+                <button id="togglePlayersPanel" class="ghost-button">Mostrar jugadores</button>
+                <button id="clearPlayers" class="danger-button">Nueva ronda sin jugadores</button>
+                <button id="demoAutoBingo" class="ghost-button">Probar bingo automatico</button>
+              </div>
+            </div>
+            <div id="playersPanelBody" class="control-board-grid collapsed">
+              <div>
+                <h3>Lista</h3>
+                <div id="controlPlayerList" class="control-player-list"></div>
+              </div>
+              <div>
+                <h3>Detalle</h3>
+                <div id="controlInspector" class="control-inspector"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="phone-shell player-preview">
+            <div class="phone-status">
+              <span id="connectionDot" class="connection-dot"></span>
+              <strong>BINGO-4821</strong>
+              <span>Ronda 58</span>
+            </div>
+            <div class="mobile-summary">
+              <span>Cartones</span>
+              <strong id="playerTotal">0</strong>
+              <span id="paymentState" class="status-chip pending">Sin reserva</span>
+            </div>
+            <div class="mobile-summary">
+              <span>Regla activa</span>
+              <strong id="playerPattern">Sin seleccionar</strong>
+            </div>
+            <div id="playerTickets" class="player-tickets"></div>
+            <button id="claimBingo" class="bingo-button">BINGO</button>
+            <div class="mobile-history">
+              <span>Ultimos numeros</span>
+              <div id="mobileHistory" class="history-track compact"></div>
+            </div>
+          </section>
+
+          <section class="panel hidden-support">
+            <div id="playerRegistry" class="registry-list"></div>
+            <div id="playerInspector" class="player-inspector"></div>
+            <div id="ticketPicker" class="ticket-picker-grid"></div>
+            <div id="pendingPayments" class="payment-list"></div>
+            <div id="cashierList" class="payment-list"></div>
+            <input id="cashierSearch" type="hidden" />
+            <strong id="salesTotal">$ 0</strong>
+            <strong id="cashierReserved">0</strong>
+            <strong id="cashierPaid">0</strong>
+            <button id="assignManual" type="button">Asignar efectivo</button>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="publicView">
+        <div class="public-screen">
+          <div class="public-top">
+            <div>
+              <p class="eyebrow">Pantalla publica</p>
+              <h1>Bingo Central</h1>
+            </div>
+            <div class="public-controls">
+              <button id="publicPause" class="ghost-button">Pausar</button>
+              <button id="publicFinish" class="danger-button">Descontinuar</button>
+            </div>
+            <span id="publicCountdown" class="countdown">05</span>
+          </div>
+          <div class="public-ball-wrap">
+            <div id="publicBall" class="public-ball">--</div>
+          </div>
+          <div id="publicHistory" class="public-history"></div>
+          <div class="public-bottom">
+            <article><span>Patron</span><strong id="publicPattern">Sin seleccionar</strong></article>
+            <article><span>Premio</span><strong id="publicPrize">$ 240.000</strong></article>
+            <article><span>Jugadores</span><strong id="publicPlayers">0</strong></article>
+            <article><span>Ganador</span><strong id="winnerName">Pendiente</strong></article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section id="winnerOverlay" class="winner-overlay" aria-live="assertive" aria-modal="true">
+      <div class="winner-card">
+        <p class="eyebrow">Deteccion automatica</p>
+        <h2>BINGO</h2>
+        <div id="winnerSummary" class="winner-summary"></div>
+        <div class="winner-actions">
+          <button id="rectifyBingo" class="primary-button">Rectificar bingo</button>
+          <button id="confirmWinner" class="primary-button">Confirmar ganador</button>
+          <button id="continueRound" class="ghost-button">Continuar partida</button>
+          <button id="finishWinnerRound" class="danger-button">Finalizar partida</button>
+        </div>
+        <div id="rectifyPanel" class="rectify-panel"></div>
+      </div>
+    </section>
+
+    <section id="rulesModal" class="rules-modal" aria-modal="true" aria-label="Seleccionar reglas">
+      <div class="rules-card">
+        <div class="rules-head">
+          <div>
+            <p class="eyebrow">Seleccionar reglas</p>
+            <h2>Forma de ganar esta ronda</h2>
+          </div>
+          <button id="closeRules" class="ghost-button">Cerrar</button>
+        </div>
+        <div id="rulesGrid" class="rules-grid"></div>
+        <div class="custom-rule-panel">
+          <div>
+            <h3>Patron personalizado</h3>
+            <p class="muted">Activa las casillas necesarias y luego selecciona el patron personalizado.</p>
+          </div>
+          <div id="customPatternGrid" class="custom-pattern-grid"></div>
+          <button id="selectCustomRule" class="primary-button">Usar patron personalizado</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="script.js?v=menu-premio-qr-1"></script>
+  </body>
+</html>

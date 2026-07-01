@@ -1,0 +1,10 @@
+{
+  "name": "Bingo Connect Demo",
+  "short_name": "Bingo Connect",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#080d16",
+  "theme_color": "#0b1220",
+  "description": "Demo PWA para bingo presencial conectado por QR.",
+  "icons": []
+}
