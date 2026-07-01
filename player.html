@@ -26,22 +26,32 @@
         <div id="playerOnlyList" class="player-access-list"></div>
       </section>
 
-      <section id="playerOnlyCardsPanel" class="panel player-only-cards">
-        <div class="player-only-head">
-          <div>
-            <p class="eyebrow">Tus cartones</p>
-            <h2 id="playerOnlyName">Sin jugador seleccionado</h2>
+      <section id="playerOnlyCardsPanel" class="player-only-cards">
+        <div class="phone-shell player-only-phone">
+          <div class="phone-status">
+            <span class="connection-dot"></span>
+            <strong id="playerOnlyPhoneRoom">BINGO-4821</strong>
+            <span id="playerOnlyRound">Ronda 58</span>
           </div>
-          <button id="playerOnlyChange" class="ghost-button">Cambiar jugador</button>
-        </div>
-        <div class="mobile-summary">
-          <span>Regla activa</span>
-          <strong id="playerOnlyPattern">Sin seleccionar</strong>
-        </div>
-        <div id="playerOnlyTickets" class="player-tickets"></div>
-        <div class="mobile-history">
-          <span>Balotas cantadas</span>
-          <div id="playerOnlyHistory" class="history-track compact"></div>
+          <div class="mobile-summary">
+            <span>Cartones</span>
+            <strong id="playerOnlyTotal">0</strong>
+            <span id="playerOnlyState" class="status-chip ok">Activo</span>
+          </div>
+          <div class="mobile-summary">
+            <span>Regla activa</span>
+            <strong id="playerOnlyPattern">Sin seleccionar</strong>
+          </div>
+          <div class="player-only-owner">
+            <strong id="playerOnlyName">Sin jugador seleccionado</strong>
+            <button id="playerOnlyChange" class="ghost-button">Cambiar</button>
+          </div>
+          <div id="playerOnlyTickets" class="player-tickets"></div>
+          <button id="playerOnlyClaim" class="bingo-button">BINGO</button>
+          <div class="mobile-history">
+            <span>Ultimos numeros</span>
+            <div id="playerOnlyHistory" class="history-track compact"></div>
+          </div>
         </div>
       </section>
     </main>

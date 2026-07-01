@@ -1111,10 +1111,17 @@ h2 {
 }
 
 .player-only-cards.show {
-  display: block;
+  display: grid;
+  justify-items: center;
 }
 
-.player-only-head {
+.player-only-phone {
+  width: min(430px, 100%);
+  max-height: none;
+  overflow: visible;
+}
+
+.player-only-owner {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -1122,9 +1129,19 @@ h2 {
   margin-bottom: 12px;
 }
 
-.player-only-cards .player-tickets {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
-  align-items: start;
+.player-only-owner strong {
+  font-size: 18px;
+}
+
+.player-only-owner .ghost-button {
+  min-height: 36px;
+  padding: 0 12px;
+}
+
+.player-only-phone .player-tickets {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
 .phone-shell {

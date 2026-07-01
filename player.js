@@ -1,7 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, index) => from + index);
-const shuffle = (items) => [...items].sort(() => Math.random() - 0.5);
 const STORAGE_KEY = "bingo-connect-room-state-v1";
+const DEMO_STORAGE_KEY = "bingo-connect-stable-demo-v1";
 
 const BINGO_COLUMNS = [
   { letter: "B", from: 1, to: 15 },
@@ -53,6 +53,14 @@ function statusLabel(status) {
   return STATUS_LABELS[status] || status;
 }
 
+function showToast(message) {
+  const toast = $("#toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 1900);
+}
+
 function getTicket(id) {
   return state.tickets.find((ticket) => ticket.id === Number(id));
 }
@@ -61,10 +69,33 @@ function getPlayer(id) {
   return state.players.find((player) => player.id === id);
 }
 
+function stableRandom(seed) {
+  let value = seed % 2147483647;
+  if (value <= 0) value += 2147483646;
+  return () => {
+    value = (value * 16807) % 2147483647;
+    return (value - 1) / 2147483646;
+  };
+}
+
+function stableShuffle(items, seed) {
+  const random = stableRandom(seed);
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+  return result;
+}
+
+function normalizeMarks(marks) {
+  return new Set(Array.isArray(marks) ? marks : ["FREE"]);
+}
+
 function createBingoTicket(id, ownerId) {
   const columns = {};
-  BINGO_COLUMNS.forEach(({ letter, from, to }) => {
-    columns[letter] = shuffle(range(from, to)).slice(0, 5).sort((a, b) => a - b);
+  BINGO_COLUMNS.forEach(({ letter, from, to }, columnIndex) => {
+    columns[letter] = stableShuffle(range(from, to), id * 97 + columnIndex * 31).slice(0, 5).sort((a, b) => a - b);
   });
   return {
     id,
@@ -88,7 +119,7 @@ function createDemoSnapshot() {
   [3, 1, 5].forEach((quantity, playerIndex) => {
     for (let index = 0; index < quantity; index += 1) {
       const ticket = createBingoTicket(nextTicketId, players[playerIndex].id);
-      tickets.push(ticket);
+      tickets.push({ ...ticket, manualMarks: Array.from(ticket.manualMarks) });
       players[playerIndex].tickets.push(ticket.id);
       nextTicketId += 1;
     }
@@ -104,7 +135,7 @@ function normalizeSnapshot(snapshot) {
   state.players = snapshot.players;
   state.tickets = snapshot.tickets.map((ticket) => ({
     ...ticket,
-    manualMarks: new Set(ticket.manualMarks || ["FREE"]),
+    manualMarks: normalizeMarks(ticket.manualMarks),
   }));
   state.drawn = snapshot.drawn || [];
   return true;
@@ -128,7 +159,17 @@ async function loadSnapshot() {
     if (normalizeSnapshot(JSON.parse(localStorage.getItem(STORAGE_KEY)))) return;
   } catch (error) {}
 
-  normalizeSnapshot(createDemoSnapshot());
+  try {
+    if (normalizeSnapshot(JSON.parse(localStorage.getItem(DEMO_STORAGE_KEY)))) return;
+  } catch (error) {}
+
+  if (state.players.length && state.tickets.length) return;
+
+  const demoSnapshot = createDemoSnapshot();
+  try {
+    localStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(demoSnapshot));
+  } catch (error) {}
+  normalizeSnapshot(demoSnapshot);
 }
 
 function renderPlayerList() {
@@ -175,6 +216,8 @@ function renderSelectedPlayer() {
   const selectPanel = $("#playerOnlySelect");
   const panel = $("#playerOnlyCardsPanel");
   $("#playerOnlyRoom").textContent = state.roomCode;
+  $("#playerOnlyPhoneRoom").textContent = state.roomCode;
+  $("#playerOnlyRound").textContent = `Ronda ${state.round}`;
   $("#playerOnlyPattern").textContent = state.pattern?.label || "Sin seleccionar";
   $("#playerOnlyHistory").innerHTML = state.drawn.slice(-24).map((number) => `<span class="history-ball">${ballHtml(number)}</span>`).join("");
 
@@ -183,16 +226,22 @@ function renderSelectedPlayer() {
     selectPanel.classList.remove("hidden");
     panel.classList.remove("show");
     $("#playerOnlyName").textContent = "Sin jugador seleccionado";
+    $("#playerOnlyTotal").textContent = "0";
+    $("#playerOnlyState").textContent = "Sin cartones";
+    $("#playerOnlyState").className = "status-chip pending";
     $("#playerOnlyTickets").innerHTML = "";
     return;
   }
 
+  const tickets = player.tickets.map(getTicket).filter(Boolean);
+  const activeCount = tickets.filter((ticket) => ["paid", "in-game", "winner"].includes(ticket.status)).length;
   selectPanel.classList.add("hidden");
   panel.classList.add("show");
   $("#playerOnlyName").textContent = player.name;
-  $("#playerOnlyTickets").innerHTML = player.tickets
-    .map(getTicket)
-    .filter(Boolean)
+  $("#playerOnlyTotal").textContent = String(tickets.length);
+  $("#playerOnlyState").textContent = activeCount ? "Activo" : "Sin cartones";
+  $("#playerOnlyState").className = `status-chip ${activeCount ? "ok" : "pending"}`;
+  $("#playerOnlyTickets").innerHTML = tickets
     .map(renderTicketCard)
     .join("");
 }
@@ -215,6 +264,16 @@ function bindEvents() {
     selectedPlayerId = null;
     renderAll();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  $("#playerOnlyClaim").addEventListener("click", () => {
+    const player = getPlayer(selectedPlayerId);
+    if (!player) return;
+    const hasWinningTicket = player.tickets
+      .map(getTicket)
+      .filter(Boolean)
+      .some((ticket) => ticket.status === "winner");
+    showToast(hasWinningTicket ? "Bingo registrado" : "El servidor valida tu carton automaticamente");
   });
 }
 
