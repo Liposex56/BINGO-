@@ -195,6 +195,39 @@ input:focus {
   background: rgba(50, 230, 220, 0.14);
 }
 
+.side-qr-card {
+  margin-top: 16px;
+  border: 1px solid rgba(50, 230, 220, 0.28);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background: rgba(5, 10, 18, 0.42);
+}
+
+.side-qr-card .qr-code {
+  width: 86px;
+  height: 86px;
+  border-width: 6px;
+}
+
+.side-qr-card span,
+.side-qr-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.side-qr-card strong {
+  display: block;
+  margin: 4px 0;
+  color: var(--ink);
+  font-size: 18px;
+}
+
 .role-tab,
 .ghost-button,
 .primary-button,
@@ -993,6 +1026,105 @@ h2 {
 
 .hidden-support {
   display: none;
+}
+
+.player-only-shell {
+  width: min(1180px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(16px, 3vw, 34px);
+}
+
+.player-only-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.player-room-pill {
+  min-height: 54px;
+  border: 1px solid rgba(255, 201, 51, 0.34);
+  border-radius: 8px;
+  display: grid;
+  align-content: center;
+  padding: 8px 14px;
+  background: rgba(5, 10, 18, 0.48);
+}
+
+.player-room-pill span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.player-room-pill strong {
+  font-size: 18px;
+}
+
+.player-only-select {
+  margin-bottom: 16px;
+}
+
+.player-only-select.hidden {
+  display: none;
+}
+
+.player-access-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.access-player {
+  min-height: 74px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 12px;
+  background: rgba(5, 10, 18, 0.42);
+  text-align: left;
+}
+
+.access-player strong {
+  font-size: 18px;
+}
+
+.access-player span {
+  color: #ffe497;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.access-player.selected,
+.access-player:hover {
+  border-color: var(--aqua);
+  background: rgba(50, 230, 220, 0.12);
+}
+
+.player-only-cards {
+  display: none;
+}
+
+.player-only-cards.show {
+  display: block;
+}
+
+.player-only-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.player-only-cards .player-tickets {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 340px));
+  align-items: start;
 }
 
 .phone-shell {

@@ -7,7 +7,7 @@
     <title>Bingo Connect - Demo PWA</title>
     <link rel="icon" href="data:," />
     <link rel="manifest" href="manifest.json" />
-    <link rel="stylesheet" href="styles.css?v=menu-premio-qr-1" />
+    <link rel="stylesheet" href="styles.css?v=player-portal-1" />
   </head>
   <body>
     <main class="app-shell">
@@ -17,7 +17,7 @@
           <span>BINGO</span><strong>CONNECT</strong>
         </div>
         <div class="version-badge">
-          OPERADOR LIMPIO: reglas, balota automatica y pausa
+          CONTROL DE RONDA: reglas, premio y balotera
         </div>
         <nav class="role-tabs" aria-label="Vistas del sistema">
           <button class="role-tab active" data-view="operator">Operador</button>
@@ -32,31 +32,23 @@
           <button id="closeMenu" class="ghost-button">Cerrar</button>
         </div>
         <button class="menu-nav active" data-view="operator">Panel operador</button>
-        <button class="menu-nav" data-view="player">Jugadores</button>
+        <button class="menu-nav" data-view="player">Gestionar jugadores</button>
         <button class="menu-nav" data-view="public">Pantalla publica</button>
         <button id="clearPlayersMenu" class="danger-button">Limpiar jugadores</button>
+        <div class="side-qr-card">
+          <img id="qrCode" class="qr-code" alt="QR para jugadores" />
+          <div>
+            <span>Acceso jugadores</span>
+            <strong id="roomCode">BINGO-4821</strong>
+            <small id="qrLinkText"></small>
+          </div>
+        </div>
       </aside>
       <div id="menuBackdrop" class="menu-backdrop"></div>
 
       <section class="view active" id="operatorView">
         <div class="dashboard-grid">
-          <section class="panel room-panel">
-            <div>
-              <p class="eyebrow">Sala activa</p>
-              <h1 id="roomTitle">Bingo Central 4821</h1>
-              <p class="muted">Ronda 58 - Bingo B-I-N-G-O presencial conectado</p>
-            </div>
-            <div class="qr-card">
-              <img id="qrCode" class="qr-code" alt="QR para entrar como jugador" />
-              <div>
-                <span>Codigo corto</span>
-                <strong id="roomCode">BINGO-4821</strong>
-                <small id="qrLinkText"></small>
-              </div>
-            </div>
-          </section>
-
-          <section class="panel stats-panel">
+          <section class="panel stats-panel hidden-support">
             <article><span>Jugadores</span><strong id="statPlayers">0</strong></article>
             <article><span>Cartones</span><strong id="statAvailable">0</strong></article>
             <article><span>En espera</span><strong id="statReserved">0</strong></article>
@@ -80,7 +72,7 @@
           <section class="panel number-console">
             <div class="console-head">
               <div>
-                <p class="eyebrow">Balotera B-I-N-G-O</p>
+                <p class="eyebrow">Balota BINGO</p>
                 <h2>Sacar balota</h2>
               </div>
               <span id="roundState" class="status-chip pending">Preparando</span>
@@ -195,7 +187,7 @@
             <strong id="salesTotal">$ 0</strong>
             <strong id="cashierReserved">0</strong>
             <strong id="cashierPaid">0</strong>
-            <button id="assignManual" type="button">Asignar efectivo</button>
+            <button id="assignManual" type="button">Asignar carton</button>
           </section>
         </div>
       </section>
@@ -264,6 +256,6 @@
     </section>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script src="script.js?v=menu-premio-qr-1"></script>
+    <script src="script.js?v=player-portal-1"></script>
   </body>
 </html>

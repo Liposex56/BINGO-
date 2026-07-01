@@ -10,6 +10,7 @@ const STATUS_LABELS = {
   winner: "Ganador",
 };
 const LAN_FALLBACK_HOST = "192.168.1.2";
+const STORAGE_KEY = "bingo-connect-room-state-v1";
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -96,6 +97,85 @@ function ticketCode(id) {
 
 function statusLabel(status) {
   return STATUS_LABELS[status] || status;
+}
+
+function serializeRoomState() {
+  return {
+    roomCode: state.roomCode,
+    round: state.round,
+    maxTickets: state.maxTickets,
+    prize: state.prize,
+    pattern: state.pattern,
+    customPatternCells: state.customPatternCells,
+    status: state.status,
+    currentPlayerId: state.currentPlayerId,
+    nextTicketId: state.nextTicketId,
+    players: state.players,
+    tickets: state.tickets.map((ticket) => ({
+      ...ticket,
+      manualMarks: Array.from(ticket.manualMarks),
+    })),
+    drawn: state.drawn,
+    requests: state.requests,
+    selectedPlayerId: state.selectedPlayerId,
+    pendingWinner: state.pendingWinner,
+    confirmedWinner: state.confirmedWinner,
+    countdown: state.countdown,
+    autoMode: state.autoMode,
+  };
+}
+
+function hydrateRoomState(snapshot) {
+  if (!snapshot || !Array.isArray(snapshot.players) || !Array.isArray(snapshot.tickets)) return false;
+  Object.assign(state, {
+    roomCode: snapshot.roomCode || state.roomCode,
+    round: Number(snapshot.round) || state.round,
+    maxTickets: Number(snapshot.maxTickets) || state.maxTickets,
+    prize: Number(snapshot.prize) || state.prize,
+    pattern: snapshot.pattern || null,
+    customPatternCells: snapshot.customPatternCells || [...DEFAULT_CUSTOM_CELLS],
+    status: snapshot.status || "preparing",
+    currentPlayerId: snapshot.currentPlayerId || null,
+    nextTicketId: Number(snapshot.nextTicketId) || state.nextTicketId,
+    players: snapshot.players,
+    tickets: snapshot.tickets.map((ticket) => ({
+      ...ticket,
+      manualMarks: new Set(ticket.manualMarks || ["FREE"]),
+    })),
+    drawn: snapshot.drawn || [],
+    requests: snapshot.requests || [],
+    selectedPlayerId: snapshot.selectedPlayerId || null,
+    pendingWinner: snapshot.pendingWinner || null,
+    confirmedWinner: snapshot.confirmedWinner || null,
+    countdown: Number(snapshot.countdown) || state.countdown,
+    autoMode: Boolean(snapshot.autoMode),
+  });
+  return true;
+}
+
+function loadRoomState() {
+  try {
+    return hydrateRoomState(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+  } catch (error) {
+    return false;
+  }
+}
+
+function persistRoomState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeRoomState()));
+  } catch (error) {
+    // Storage can be unavailable in private windows; the app still works locally.
+  }
+}
+
+function publishRoomState() {
+  if (!window.location.protocol.startsWith("http")) return;
+  fetch("/api/state", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(serializeRoomState()),
+  }).catch(() => {});
 }
 
 function createBingoTicket(id, ownerId) {
@@ -194,11 +274,13 @@ function renderAll() {
   renderPublic();
   renderWinnerOverlay();
   renderFloatingBalls();
+  persistRoomState();
+  publishRoomState();
 }
 
 function renderQr() {
-  const entryUrl = new URL(window.location.href);
-  entryUrl.searchParams.set("view", "player");
+  const entryUrl = new URL("player.html", window.location.href);
+  entryUrl.searchParams.set("room", state.roomCode);
   if (["127.0.0.1", "localhost"].includes(entryUrl.hostname) && LAN_FALLBACK_HOST) {
     entryUrl.hostname = LAN_FALLBACK_HOST;
   }
@@ -1132,7 +1214,9 @@ function bindEvents() {
   if (["operator", "player", "public"].includes(initialView)) activateView(initialView);
 }
 
-seedDemo();
-addAudit("Sala creada con QR temporal BINGO-4821");
+if (!loadRoomState()) {
+  seedDemo();
+  addAudit("Sala creada con QR para jugadores BINGO-4821");
+}
 bindEvents();
 renderAll();

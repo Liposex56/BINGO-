@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1220" />
+    <title>Bingo Connect - Jugador</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css?v=player-portal-1" />
+  </head>
+  <body>
+    <main class="player-only-shell">
+      <header class="player-only-top">
+        <div class="brand">
+          <span>BINGO</span><strong>CONNECT</strong>
+        </div>
+        <div class="player-room-pill">
+          <span>Sala</span>
+          <strong id="playerOnlyRoom">BINGO-4821</strong>
+        </div>
+      </header>
+
+      <section id="playerOnlySelect" class="panel player-only-select">
+        <p class="eyebrow">Acceso de jugador</p>
+        <h1>Selecciona tu nombre</h1>
+        <div id="playerOnlyList" class="player-access-list"></div>
+      </section>
+
+      <section id="playerOnlyCardsPanel" class="panel player-only-cards">
+        <div class="player-only-head">
+          <div>
+            <p class="eyebrow">Tus cartones</p>
+            <h2 id="playerOnlyName">Sin jugador seleccionado</h2>
+          </div>
+          <button id="playerOnlyChange" class="ghost-button">Cambiar jugador</button>
+        </div>
+        <div class="mobile-summary">
+          <span>Regla activa</span>
+          <strong id="playerOnlyPattern">Sin seleccionar</strong>
+        </div>
+        <div id="playerOnlyTickets" class="player-tickets"></div>
+        <div class="mobile-history">
+          <span>Balotas cantadas</span>
+          <div id="playerOnlyHistory" class="history-track compact"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="player.js?v=player-portal-1"></script>
+  </body>
+</html>
